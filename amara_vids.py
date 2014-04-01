@@ -71,59 +71,6 @@ class RelevantVideos(object):
 				f.write(k+"\n") # write the id to a file
 		f.close()
 
-##### START OLD CODE, ABOVE NEW CODE
-
-count = 15 # total amount of pages on amara acct. TODO: remove need to make sure this is right
-baseurl = "http://www.amara.org/en/profiles/videos/openmichigan.video/?page=last"
-base = "http://www.amara.org/en/profiles/videos/openmichigan.video/" # for iterating through pgs
-kathleen_url = "http://www.amara.org/en/profiles/videos/kludewig/"
-# get all videoids from a given page in ids dict
-r = requests.get(baseurl).text
-soup = bsoup(r)
-links = soup.findAll('a')
-rt = requests.get(kathleen_url).text
-sp_k = bsoup(rt)
-k_links = sp_k.findAll('a')
-#print k_links
-links = links + k_links
-#links += sp.findAll('a')
-# consider these vars global even though it's bad
-patt = re.compile(r"/videos/([a-zA-Z0-9]{12})")
-ids = {}
-for l in links:
-	test = re.search(patt,l['href'])
-	if test is not None:
-		eyedee = test.groups()[0]
-		if eyedee not in ids:
-			ids[eyedee] = 1 # entering it into dict
-		else:
-			continue
-	else:
-		continue
-
-patt = re.compile(r"/videos/([a-zA-Z0-9]{12})")
-for i in range(1,count):
-	burl = base + "?page={}".format(i)
-	rb = requests.get(burl).text
-	sp = bsoup(rb)
-	lks = sp.findAll('a')
-	for l in lks:
-		tst = re.search(patt, l['href'])
-		if tst is not None:
-			ed = tst.groups()[0]
-			if ed not in ids:
-				ids[ed] = 1
-			else: continue
-		else:
-			continue
-
-now = str(datetime.datetime.now())
-fname = "OM_amara_ids_{}.txt".format(now[:10])
-f = open(fname, "w")
-for k in ids:
-	if k != "openmichigan": f.write(k+"\n") # that's a semi-coincidental url, not a video id we want
-f.close()
-
 ## Amara URL time
 # amara_api_key = "9f3ef1370ccc01d0d1ccf8758077c429890ad0ab"
 # amara_username = "openmichigan.video"
