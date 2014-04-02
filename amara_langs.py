@@ -1,5 +1,6 @@
 import requests, json
 from itertools import groupby
+import amara_vids as av
 
 class AmaraInfoSet(object):
 	"""Gets metrics for videos/translations, writes json"""
@@ -9,6 +10,8 @@ class AmaraInfoSet(object):
 		self.total_langs = 0
 		self.lang_names = []
 		self.langs = {}
+		self.get_info()
+		self.get_non_english_langs()
 
 	def get_info(self):
 		for i in self.vid_ids:
@@ -31,42 +34,65 @@ class AmaraInfoSet(object):
 				self.total_transls += langs[k]
 				self.non_eng_langs.append(k)
 
+	def __str__(self):
+		s = """
+		Number of total languages including English: {}
+		Total non-English translations: {}
+		Languages:
+
+		""".format(self.langs,self.total_transls)
+		for l in sorted(self.langs.keys()):
+			s += "- {} {}\n".format(l,self.langs[l])
+
+
+if __name__ == '__main__':
+
+	om_acct = av.AmaraAccount("openmichigan.video")
+	kath_acct = av.AmaraAccount("kludewig")
+
+	relvs = av.RelevantVideos(om_acct,kath_acct)
+
+	total_info = AmaraInfoSet(relvs)
+	print total_info
+
 #BELOW OLD CODE ABOVE NEW CODE
 ## here's stuff where I was printing data ad-hoc-ily
 
-print "lang dict",langs
+# print "lang dict",langs
 
-print "number of total languages including english:", total_langs
+# print "number of total languages including english:", total_langs
 
-non_eng_langs = []
-total_transls = 0
-for k in langs:
-	if k != "en":
-		total_transls += langs[k]
-		non_eng_langs.append(k)
+# non_eng_langs = []
+# total_transls = 0
+# for k in langs:
+# 	if k != "en":
+# 		total_transls += langs[k]
+# 		non_eng_langs.append(k)
 
-print "total non-english translations", total_transls
-print
-print "list of language codes:\n"
-for i in non_eng_langs: print i
-print 
-print "list of language names:"
-# for i in set(lang_names):
-# 	print i
-print
-for k in langs:
-	print k, langs[k]
-print
-lnms = set(sorted(lang_names))
-print lnms
-amts = [len(list(group)) for key,group in groupby(lnms)]
-print amts
-tog = zip(set(lnms),amts)
-print tog
+# print "total non-english translations", total_transls
 # print
-# for k,y in sorted(tog,key=lambda x: x[1],reverse=True):
-# 	print k,y
+# print "list of language codes:\n"
+# for i in non_eng_langs: print i
+# print 
+# print "list of language names:"
+# # for i in set(lang_names):
+# # 	print i
+# print
+# for k in langs:
+# 	print k, langs[k]
+# print
+# lnms = set(sorted(lang_names))
+# print lnms
 
-# here's where we should return formatted data
+# # this stuff -- is it different? do I need to include it??
+# amts = [len(list(group)) for key,group in groupby(lnms)]
+# print amts
+# tog = zip(set(lnms),amts)
+# print tog
+# # print
+# # for k,y in sorted(tog,key=lambda x: x[1],reverse=True):
+# # 	print k,y
+
+# # here's where we should return formatted data
 
 
