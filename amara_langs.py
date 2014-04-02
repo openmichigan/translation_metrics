@@ -1,6 +1,38 @@
 import requests, json
 from itertools import groupby
 
+class AmaraInfoSet(object):
+	"""Gets metrics for videos/translations, writes json"""
+	def __init__(self,relvid): #relvid should be a RelevantVideos instance
+		self.baseurl = "http://www.amara.org/api2/partners/videos/{}/languages/?format=json" # structured for .format arg
+		self.vid_ids = relvid.ids.keys()
+		self.total_langs = 0
+		self.lang_names = []
+		self.langs = {}
+
+	def get_info(self):
+		for i in self.vid_ids:
+			t = json.loads(requests.get(self.baseurl.format(i)).text)
+			self.total_langs += int(t["meta"]["total_count"])
+			for ob in t["objects"]:
+				if ob["language_code"]:
+					if ob["language_code"] in self.langs:
+						self.langs[ob["language_code"]] += 1
+					else:
+						self.langs[ob["language_code"]] = 1
+				if ob["name"] != "english": # using for non-english languages, primary use case
+					self.lang_names.append(ob["name"])
+
+	def get_non_english_langs(self):
+		self.non_eng_langs = []
+		self.total_transls = 0 # maybe not necessary, TODO consider
+		for k in self.langs:
+			if k != "en":
+				self.total_transls += langs[k]
+				self.non_eng_langs.append(k)
+
+#BELOW OLD CODE ABOVE NEW CODE
+
 ## http://www.amara.org/api2/partners/videos/7AO3TZh2WGOK/languages/?format=json
 
 baseurl = "http://www.amara.org/api2/partners/videos/{}/languages/?format=json" # needs videoid
@@ -9,6 +41,11 @@ f = open("OM_amara_ids_2013-12-18.txt", "r") # regularly need to run other file,
 ids = [x.strip() for x in f.readlines()]
 lang_names = []
 langs = {}
+
+
+
+
+
 total_langs = 0
 #transls = 0
 for i in ids:
