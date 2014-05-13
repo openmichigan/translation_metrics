@@ -9,7 +9,7 @@ class AmaraAccount(object):
 
 	def num_acct_pages(self):
 		"""This should return an integer that is the number of pages of vids in the account"""
-		print self.base #debug
+		#print self.base #debug
 		try:
 			sp = bsoup(requests.get(self.base).text)
 			#print sp #debug
@@ -20,8 +20,11 @@ class AmaraAccount(object):
 
 	def get_links(self):
 		r = requests.get("%s?page=last" % (self.base)).text
-		soup = bsoup(r)
-		self.links = soup.findAll('a')
+		# <a rel="next" href="?page=last">15</a>
+		rp = requests.get(self.base).text
+		soup = bsoup(rp)
+		numpgs = soup.find('a', href='?page=last').text # want the a where the href is ?page=last, the inner text, turned to int, yay html
+		return int(numpgs)
 
 
 class RelevantVideos(object):
@@ -38,6 +41,10 @@ class RelevantVideos(object):
 		if acct_3 is not None:
 			self.acctobjs.append(acct_3)
 		# might later have a method to add another acct, now (04/2014) might only need 2 or 3
+		for ob in self.acctobjs:
+			ob.get_links()
+		self.manage_lastpage_links()
+		self.manage_lastpage_links()
 
 	def manage_lastpage_links(self):
 		for ab in self.acctobjs:
@@ -75,6 +82,7 @@ class RelevantVideos(object):
 		self.manage_remainder_links()
 
 	def write_file(self):
+		"""Write txt file with video ids if necessary -- or use list in object"""
 		now = str(datetime.datetime.now())
 		fname = "OM_amara_ids_{}.txt".format(now[:10]) # to instance variablize or not to instance variablize
 		f = open(fname, "w")
@@ -82,6 +90,7 @@ class RelevantVideos(object):
 			if k not in self.coincidental_links: 
 				f.write(k+"\n") # write the id to a file
 		f.close()
+
 
 if __name__ == '__main__':
 
@@ -98,3 +107,13 @@ if __name__ == '__main__':
 
 	foo.manage_links()
 	print foo.ids
+
+
+# if __name__ == '__main__':
+# 	am = AmaraAccount('openmichigan.video')
+# 	am.get_links() # this is important, should do this in relvids
+# 	print am.num_acct_pages()
+# 	at = RelevantVideos(am)
+# 	at.manage_lastpage_links()
+# 	print at.ids
+
