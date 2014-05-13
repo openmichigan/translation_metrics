@@ -9,12 +9,19 @@ class AmaraAccount(object):
 
 	def num_acct_pages(self):
 		"""This should return an integer that is the number of pages of vids in the account"""
-		pass
+		print self.base #debug
+		try:
+			sp = bsoup(requests.get(self.base).text)
+			#print sp #debug
+			num = sp.find('a',href='?page=last').text
+			return int(num)
+		except:
+			return 2 # if there's only one page, there's no 'last' -- should only go through 1 (range(1,1))
 
 	def get_links(self):
-		r = requests.get("url%s" % "?page=last")
+		r = requests.get("%s?page=last" % (self.base)).text
 		soup = bsoup(r)
-		self.links = soup.findall('a')
+		self.links = soup.findAll('a')
 
 
 class RelevantVideos(object):
@@ -34,6 +41,7 @@ class RelevantVideos(object):
 
 	def manage_lastpage_links(self):
 		for ab in self.acctobjs:
+			ab.get_links()
 			for l in ab.links:
 				test = re.search(self.vid_patt,l['href'])
 				if test is not None:
@@ -48,19 +56,23 @@ class RelevantVideos(object):
 	def manage_remainder_links(self):
 		for ak in self.acctobjs:
 			for i in range(1,ak.num_acct_pages()):
-				burl = base + "?page={}".format(i)
+				burl = ak.base + "?page={}".format(i)
 				rb = requests.get(burl).text
 				sp = bsoup(rb)
 				lks = sp.findAll('a')
 				for l in lks:
-					tst = re.search(patt, l['href'])
+					tst = re.search(self.vid_patt, l['href'])
 					if tst is not None:
 						ed = tst.groups()[0]
-						if ed not in ids:
-							ids[ed] = 1
+						if ed not in self.ids:
+							self.ids[ed] = 1
 						else: continue
 					else:
 						continue
+
+	def manage_links(self): # aggregate
+		self.manage_lastpage_links()
+		self.manage_remainder_links()
 
 	def write_file(self):
 		now = str(datetime.datetime.now())
@@ -71,3 +83,18 @@ class RelevantVideos(object):
 				f.write(k+"\n") # write the id to a file
 		f.close()
 
+if __name__ == '__main__':
+
+	# testing testing
+
+	a = AmaraAccount("openmichigan.video")
+	k = AmaraAccount("kludewig")
+	print a.username
+	print a.base
+	print a.num_acct_pages()
+
+	foo = RelevantVideos(a,k)
+	#bar = RelevantVideos(k)
+
+	foo.manage_links()
+	print foo.ids
