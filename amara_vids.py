@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup as bsoup
 import json, requests, re, datetime, urllib
 
 
+
 class AmaraAccount(object):
 	def __init__(self, username):
 		self.username = username
@@ -21,10 +22,16 @@ class AmaraAccount(object):
 	def get_links(self):
 		r = requests.get("%s?page=last" % (self.base)).text
 		# <a rel="next" href="?page=last">15</a>
-		rp = requests.get(self.base).text
-		soup = bsoup(rp)
-		numpgs = soup.find('a', href='?page=last').text # want the a where the href is ?page=last, the inner text, turned to int, yay html
-		return int(numpgs)
+		#rp = requests.get(self.base).text
+		soup = bsoup(r)
+		# this no longer... gets links, because that happened in merge resolve, so that needs fixing TODO TODO
+
+
+		# try:
+		# 	numpgs = soup.find('a', href='?page=last').text # want the a where the href is ?page=last, the inner text, turned to int, yay html
+		# 	return int(numpgs)
+		# except:
+		# 	return 2 # only want it to go through 1, so that will make the range work
 
 
 class RelevantVideos(object):
@@ -43,8 +50,7 @@ class RelevantVideos(object):
 		# might later have a method to add another acct, now (04/2014) might only need 2 or 3
 		for ob in self.acctobjs:
 			ob.get_links()
-		self.manage_lastpage_links()
-		self.manage_lastpage_links()
+		self.manage_links()
 
 	def manage_lastpage_links(self):
 		for ab in self.acctobjs:
