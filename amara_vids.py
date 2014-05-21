@@ -24,8 +24,10 @@ class AmaraAccount(object):
 		# <a rel="next" href="?page=last">15</a>
 		#rp = requests.get(self.base).text
 		soup = bsoup(r)
-		# this no longer... gets links, because that happened in merge resolve, so that needs fixing TODO TODO
-
+		# on merge resolve, accidentally made this method do the same as the prev one; TODO check fix
+		lks = soup.findAll('a')
+		self.links = lks
+		return self.links # hmmmm does this do what I want (check where these things are beign ref'd TODO)
 
 		# try:
 		# 	numpgs = soup.find('a', href='?page=last').text # want the a where the href is ?page=last, the inner text, turned to int, yay html

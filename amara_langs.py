@@ -3,13 +3,16 @@ from itertools import groupby
 import amara_vids as av
 
 
-
+# parse iana subtag (language code) registry
 stf = open("iana_subtag_registry.txt").read()
-langlist = stf.split("\%\%")
+langlist = stf.split("%%")
 codelangs = {}
 
-
-#lpairs = [codelangs[x] = get_lang() for x in lls]
+separated = [x.strip().split("\n") for x in langlist]
+for si in separated:
+	for term in si:
+		if term.startswith("Subtag:"):
+			codelangs[term.split(":")[1].strip().rstrip()] = si[2].split(":")[1].strip().rstrip()
 
 
 class AmaraInfoSet(object):
@@ -24,13 +27,12 @@ class AmaraInfoSet(object):
 		self.langs = {}
 		self.get_info()
 		self.get_non_english_langs()
-		# need map of langs to codes (English language names for primary audience) -- for now, manually filled in as needed
-		# TODO use API request, or build a better map.
-		self.lang_map = {"en":"English","es":"Spanish","id":"Indonesian","zh-tw":"Mandarin Chinese (traditional)","zh-cn":"Mandarin Chinese (simplified)","swa":"Swahili","fr":"French","it":"Italian","vi":"Vietnamese","ru":"Russian","ro":"Romanian","lg":"Luganda","pt":"Portuguese","pt-br":"Brazilian Portuguese","ar":"Arabic"}
+		self.lang_map = codelangs # created in py file, above
 
 	def get_info(self):
 		for i in self.vid_ids:
 			#print i # debug
+			# TODO: use coincidental_urls for actual use. for now, no harm done.
 			try:
 				t = json.loads(requests.get(self.baseurl.format(i)).text)
 				self.total_langs += int(t["meta"]["total_count"])
@@ -43,8 +45,9 @@ class AmaraInfoSet(object):
 					if ob["name"] != "english": # using for non-english languages, primary use case
 						self.lang_names.append(ob["name"])
 			except Exception, e:
-				print "There was an error -- \n",e
-				print "Occurred in",self.baseurl.format(i)
+				#print "There was an error -- \n",e
+				#print "Occurred in",self.baseurl.format(i)
+				## console printing no longer useful here, just exception handling
 				continue
 
 
