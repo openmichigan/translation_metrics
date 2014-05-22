@@ -92,13 +92,6 @@ Number of total languages including English: {}
 Total non-English translations: {}
 Languages:\n
 """.format(len(self.langs.keys()),self.total_transls)
-		# for l in sorted(self.langs.keys(), key=lambda x: self.langs[x], reverse=True):
-		# 	if "-" in l:
-		# 		l = [x.replace("-","").strip().rstrip() for x in l.split("-")][0] # for pt-br etc, want just pt (for example)
-		# 	try:
-		# 		s += "- {} {}\n".format(self.langs[l],self.lang_map[l]) # better: parse iana registry
-		# 	except:
-		# 		s += "cannot decode language code: {}\n".format(l) # better: parse iana registry
 		for l in self.langsnums:
 			s += "- {} {}\n".format(self.langsnums[l], l)
 		return s
