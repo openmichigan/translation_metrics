@@ -28,6 +28,7 @@ class AmaraInfoSet(object):
 		self.get_info()
 		self.get_non_english_langs()
 		self.lang_map = codelangs # created in py file, above
+		self.lang_map['swa'] = "Swahili" # because of a multiple version problem, see error correction
 
 	def get_info(self):
 		for i in self.vid_ids:
@@ -41,7 +42,7 @@ class AmaraInfoSet(object):
 						if ob["language_code"] in self.langs:
 							self.langs[ob["language_code"]] += 1
 						else:
-							self.langs[ob["language_code"]] = 1
+							self.langs[ob["language_code"]] = 1 # TODO missing zh somewhere?? why?
 					if ob["name"] != "english": # using for non-english languages, primary use case
 						self.lang_names.append(ob["name"])
 			except Exception, e:
@@ -69,7 +70,13 @@ Total non-English translations: {}
 Languages:\n
 """.format(len(self.langs.keys()),self.total_transls)
 		for l in sorted(self.langs.keys(), key=lambda x: self.langs[x], reverse=True):
-			s += "- {} {}\n".format(self.langs[l],self.lang_map[l]) # better: parse iana registry
+			if "-" in l:
+				l = l.split("-")[0] # for pt-br etc, want just pt (for example)
+			try:
+				s += "- {} {}\n".format(self.langs[l],self.lang_map[l]) # better: parse iana registry
+			except:
+				s += "cannot decode language code: {}".format(l) # better: parse iana registry
+
 		return s
 
 if __name__ == '__main__':
