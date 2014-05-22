@@ -29,6 +29,7 @@ class AmaraInfoSet(object):
 		self.get_non_english_langs()
 		self.lang_map = codelangs # created in py file, above
 		self.lang_map['swa'] = "Swahili" # because of a multiple version problem, see error correction
+		self.lang_map['zh'] = "Chinese" # same deal, let's see TODO
 
 	def get_info(self):
 		for i in self.vid_ids:
@@ -71,11 +72,11 @@ Languages:\n
 """.format(len(self.langs.keys()),self.total_transls)
 		for l in sorted(self.langs.keys(), key=lambda x: self.langs[x], reverse=True):
 			if "-" in l:
-				l = l.split("-")[0] # for pt-br etc, want just pt (for example)
+				l = [x.replace("-","") for x in l.split("-")][0] # for pt-br etc, want just pt (for example)
 			try:
 				s += "- {} {}\n".format(self.langs[l],self.lang_map[l]) # better: parse iana registry
 			except:
-				s += "cannot decode language code: {}".format(l) # better: parse iana registry
+				s += "cannot decode language code: {}\n".format(l) # better: parse iana registry
 
 		return s
 
