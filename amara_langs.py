@@ -15,6 +15,7 @@ for si in separated:
 			codelangs[term.split(":")[1].strip().rstrip()] = si[2].split(":")[1].strip().rstrip()
 
 
+# remainder: objects, code using the objects
 class AmaraInfoSet(object):
 	"""Gets metrics for videos/translations, writes json"""
 	def __init__(self,relvid): #relvid should be a RelevantVideos instance
@@ -62,22 +63,44 @@ class AmaraInfoSet(object):
 				#print self.langs[k]
 				self.non_eng_langs.append(k)
 
-	def __str__(self):
+	def prep_info(self):
 		self.get_info()
 		self.get_non_english_langs()
+		self.langsnums = {}
+		lks = []
+		# appending all the correct language code keys to lks list
+		for k in self.langs.keys():
+			if "-" in k:
+				k = k.split("-")[0]
+			lks.append(k.replace("-","").strip().rstrip())
+		# constructing reference dict
+		for i in lks:
+			if i in self.lang_map and i in self.langs:
+				if self.lang_map[i] in self.langsnums:
+					self.langsnums[self.lang_map[i]] += self.langs[i]
+				else:
+					self.langsnums[self.lang_map[i]] = self.langs[i]
+			else:
+				print "ERROR FOUND - cannot decode language code: {}\n".format(i) # good place for error? TODO
+# TODO make sure numbers, once combined, are really correct
+# TODO sort properly
+
+	def __str__(self):
+		self.prep_info()
 		s = """
 Number of total languages including English: {}
 Total non-English translations: {}
 Languages:\n
 """.format(len(self.langs.keys()),self.total_transls)
-		for l in sorted(self.langs.keys(), key=lambda x: self.langs[x], reverse=True):
-			if "-" in l:
-				l = [x.replace("-","") for x in l.split("-")][0] # for pt-br etc, want just pt (for example)
-			try:
-				s += "- {} {}\n".format(self.langs[l],self.lang_map[l]) # better: parse iana registry
-			except:
-				s += "cannot decode language code: {}\n".format(l) # better: parse iana registry
-
+		# for l in sorted(self.langs.keys(), key=lambda x: self.langs[x], reverse=True):
+		# 	if "-" in l:
+		# 		l = [x.replace("-","").strip().rstrip() for x in l.split("-")][0] # for pt-br etc, want just pt (for example)
+		# 	try:
+		# 		s += "- {} {}\n".format(self.langs[l],self.lang_map[l]) # better: parse iana registry
+		# 	except:
+		# 		s += "cannot decode language code: {}\n".format(l) # better: parse iana registry
+		for l in self.langsnums:
+			s += "- {} {}\n".format(self.langsnums[l], l)
 		return s
 
 if __name__ == '__main__':
@@ -91,4 +114,4 @@ if __name__ == '__main__':
 	#total_info.get_info()
 	#total_info.get_non_english_langs() # will this work without?
 	#print total_info.lang_names
-	print total_info
+	print total_info # here's where write to json file -- but want it depending on course??
