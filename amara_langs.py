@@ -54,18 +54,18 @@ class AmaraInfoSet(object):
 				continue
 
 
-	def get_non_english_langs(self):
-		self.non_eng_langs = []
-		self.total_transls = 0 # maybe not necessary, TODO consider
-		for k in self.langs:
-			if k != "en":
-				self.total_transls += self.langs[k]
-				#print self.langs[k]
-				self.non_eng_langs.append(k)
+	# def get_non_english_langs(self):
+	# 	self.non_eng_langs = []
+	# 	self.total_transls = 0 # maybe not necessary, TODO consider
+	# 	for k in self.langs:
+	# 		if k != "en":
+	# 			self.total_transls += self.langs[k]
+	# 			#print self.langs[k]
+	# 			self.non_eng_langs.append(k)
 
 	def prep_info(self):
 		self.get_info()
-		self.get_non_english_langs()
+		#self.get_non_english_langs()
 		self.langsnums = {}
 		lks = []
 		# appending all the correct language code keys to lks list
@@ -82,8 +82,7 @@ class AmaraInfoSet(object):
 					self.langsnums[self.lang_map[i]] = self.langs[i]
 			else:
 				print "ERROR FOUND - cannot decode language code: {}\n".format(i) # good place for error? TODO
-# TODO make sure numbers, once combined, are really correct
-# TODO sort properly
+# TODO make sure numbers, once combined, are really correct -- TODO fix, they're off somehow
 
 	def __str__(self):
 		self.prep_info()
@@ -91,8 +90,8 @@ class AmaraInfoSet(object):
 Number of total languages including English: {}
 Total non-English translations: {}
 Languages:\n
-""".format(len(self.langs.keys()),self.total_transls)
-		for l in self.langsnums:
+""".format(len(self.langs.keys()),len([x for x in self.langs.keys() if "english" not in x.lower()]))
+		for l in sorted(self.langsnums.keys(),key=lambda x:self.langsnums[x]):
 			s += "- {} {}\n".format(self.langsnums[l], l)
 		return s
 
@@ -104,7 +103,5 @@ if __name__ == '__main__':
 	relvs = av.RelevantVideos(om_acct,kath_acct)
 
 	total_info = AmaraInfoSet(relvs)
-	#total_info.get_info()
-	#total_info.get_non_english_langs() # will this work without?
-	#print total_info.lang_names
-	print total_info # here's where write to json file -- but want it depending on course??
+
+	print total_info # here's where write to json file -- but want it depending on course?
