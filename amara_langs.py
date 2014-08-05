@@ -60,6 +60,13 @@ class AmaraInfoSet(object):
 				print "Looking at video: {}".format(i)
 				continue
 
+	def get_total_subtitles(self):
+		"""Gets and returns the number of total non-English subtitles extant in this InfoSet"""
+		tot = 0
+		for i in self.langsnums:
+			if "en" not in i:
+				tot += self.langsnums[i]
+		return tot
 
 	def get_non_english_langs(self):
 		"""Saves a list of all languages, besides English, subtitles have been translated into"""
@@ -73,7 +80,7 @@ class AmaraInfoSet(object):
 
 	def prep_info(self):
 		self.get_info()
-		#self.get_non_english_langs()
+		#self.get_non_english_langs() # not necessary, but can include
 		self.langsnums = {}
 		lks = []
 		# appending all the correct language code keys to lks list
@@ -88,7 +95,7 @@ class AmaraInfoSet(object):
 					self.langsnums[self.lang_map[i]] += self.langs[i]
 				else:
 					self.langsnums[self.lang_map[i]] = self.langs[i]
-			elif "zh" in i: # correcting for discrepancy in language code list
+			elif "zh" in i: # correcting for discrepancy in language code list being used
 				if "Chinese" in self.langsnums:
 					self.langsnums["Chinese"] += 1
 				else:
@@ -98,6 +105,7 @@ class AmaraInfoSet(object):
 # TODO double check number correctness
 
 	def __str__(self):
+		"""Provides print-to-console representation of InfoSet"""
 		self.prep_info()
 		s = """
 Number of total languages including English: {}
@@ -107,26 +115,23 @@ Languages:\n
 		for l in sorted(self.langsnums.keys(),key=lambda x:self.langsnums[x]):
 			s += "- {} {}\n".format(self.langsnums[l], l)
 		return s
-
-	def get_total_subtitles(self):
-		tot = 0
-		for i in self.langsnums:
-			if "en" not in i:
-				tot += self.langsnums[i]
-		return tot
+	
+	def __repr__(self):
+		# TODO: return some form of structured non-TSV data. JSON?
+		pass
 
 	def write_tsv(self):
 		self.prep_info()
 		now = str(datetime.datetime.now())
 		f = open("amara_info_{}.csv".format(now), "w") # creates csv file dated with current date/time
 		f.write("Language Name\tNumber of Subtitles\n")
-		# TODO write functions to get these numbers reliably / fill in format args properly where they exist
-		#f.write("Total Subtitles\t{}\n".format()) # TODO add the total number of subtitles
 		f.write("Total Non-English Subtitles\t{}\n".format(int(self.get_total_subtitles()))) # TODO add the total number of non-English subtitles
 		for l in sorted(self.langsnums.keys(),key=lambda x:self.langsnums[x]):
 			f.write("{}\t{}\n".format(l,self.langsnums[l]))
 
 if __name__ == '__main__':
+	# Code here for testing / Open.Michigan use case(s)
+
 	# access accounts to be used and save in AmaraAccount instances -- here, Open.Michigan's
 	om_acct = av.AmaraAccount("openmichigan.video")
 	kath_acct = av.AmaraAccount("kludewig")
