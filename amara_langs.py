@@ -2,16 +2,14 @@ import requests, json
 from itertools import groupby
 import amara_vids as av
 import datetime
-
-
-# parse iana subtag (language code) registry
+import sys
 
 
 # remainder: objects, code using the objects
 class AmaraInfoSet(object):
 	"""Object gets/stores metrics for videos/translations across whatever boundary/set specified by account(s) chosen"""
 	def __init__(self,relv): #relvid should be a RelevantVideos instance
-		# manage and create langmap
+		# manage and create langmap -- parse iana subtag (language code) registry
 		stf = open("iana_subtag_registry.txt").read()
 		langlist = stf.split("%%")
 		codelangs = {}
@@ -20,19 +18,15 @@ class AmaraInfoSet(object):
 		for si in separated:
 			for term in si:
 				if term.startswith("Subtag:"):
-					#print term.split(":")[1].strip().rstrip()
-					#print si[2].split(":")[1].strip().rstrip()
 					codelangs[term.split(":")[1].strip().rstrip()] = si[2].split(":")[1].strip().rstrip()
 		relvid = relv
 		relvid.manage_links()
 		self.baseurl = "http://www.amara.org/api2/partners/videos/{}/languages/?format=json" # structured for .format arg
 		self.vid_ids = relvid.ids.keys()
 		self.flag = False
-		#print self.vid_ids
 		self.total_indiv_subtitles = 0
 		self.lang_names = []
 		self.langs = {}
-		#self.get_info()
 		self.get_non_english_langs()
 		self.lang_map = codelangs # created dict above
 		self.lang_map['swa'] = "Swahili" # because of a multiple version problem, see error correction
@@ -43,6 +37,7 @@ class AmaraInfoSet(object):
 		#print self.lang_map
 		self.flag = True # notes that get info has been run on this instance
 		now = datetime.datetime.now()
+		# open 
 		ft = open("video_ids_langs_{}.csv".format(now), "w")
 		ft.write("Video ID,Language Translation\n")
 		for i in self.vid_ids:
@@ -89,7 +84,8 @@ class AmaraInfoSet(object):
 
 	def __str__(self):
 		"""Provides print-to-console representation of InfoSet"""
-		self.get_info()
+		if not self.flag:
+			self.get_info()
 		s = """
 Number of total languages including English: {}
 Total non-English translations: {}
@@ -116,21 +112,22 @@ Languages:\n
 			f.write("{}\t{}\n".format(l,self.langs[l]))
 
 if __name__ == '__main__':
-	# Code here for testing / Open.Michigan use case(s)
 
-	# TODO 2 files:  language, # videos || videoid, language
-	# TODO: code here for OM use case, -- if certain arg, don't do OM stuff, otherwise do OM + kludewig
-	# TODO: commit to translation_metrics repository + comment cleanup
-
-	# access accounts to be used and save in AmaraAccount instances -- here, Open.Michigan's
-	om_acct = av.AmaraAccount("openmichigan.video")
-	kath_acct = av.AmaraAccount("kludewig")
+	# access accounts to be used and save in AmaraAccount instances
+	if len(sys.argv) == 1:
+		om_acct = av.AmaraAccount("openmichigan.video")
+		addl_acct = av.AmaraAccount("kludewig")
+		accounts = [om_acct,addl_acct]
+	else:
+		accounts = []
+		for item in sys.argv[1:]:
+			accounts.append(item)
 	# get relevant videos from the account objects
-	relvs = av.RelevantVideos(om_acct,kath_acct)
+	relvs = av.RelevantVideos(*accounts)
 	# create an AmaraInfoSet instance and write file/print information to console
-	# not yet writing by course because of association problem, but theoretically that object inst would work
 	total_info = AmaraInfoSet(relvs)
+	# print information to console
 	print total_info 
+	# write aggregate file
 	total_info.write_tsv()
 
-	relvs.write_file()
