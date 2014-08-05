@@ -127,7 +127,7 @@ Languages:\n
 			f.write("{}\t{}\n".format(l,self.langsnums[l]))
 
 if __name__ == '__main__':
-	# access accounts to be used and save in AmaraAccount instances
+	# access accounts to be used and save in AmaraAccount instances -- here, Open.Michigan's
 	om_acct = av.AmaraAccount("openmichigan.video")
 	kath_acct = av.AmaraAccount("kludewig")
 	# get relevant videos from the account objects
