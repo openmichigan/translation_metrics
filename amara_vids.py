@@ -3,32 +3,32 @@ import json, requests, re, datetime, urllib
 
 
 class AmaraAccount(object):
+	"""Represents an account on Amara.org (whose vids/subtitle translations the user is interested in)"""
 	def __init__(self, username):
 		self.username = username
 		self.base = "http://www.amara.org/en/profiles/videos/%s/" % (self.username)
 
 	def num_acct_pages(self):
 		"""This should return an integer that is the number of pages of vids in the account"""
-		#print self.base #debug
 		try:
 			sp = bsoup(requests.get(self.base).text)
-			#print sp #debug
 			num = sp.find('a',href='?page=last').text
 			return int(num)
 		except:
 			return 2 # if there's only one page, there's no 'last' -- should only go through 1 (range(1,1))
 
 	def get_links(self):
+		"""Assigns all vid links to self.links attribute and returns list of links"""
 		r = requests.get("%s?page=last" % (self.base)).text
-		# <a rel="next" href="?page=last">15</a>
 		soup = bsoup(r)
 		lks = soup.findAll('a')
 		self.links = lks
 		return self.links 
 
 
-class CourseWithVids(AmaraAccount): # maybe this ought not inherit
+class CourseWithVids(AmaraAccount): # questionable inheritance
 	"""object to aggregate videos with potential translations from a a single Open.Michigan course"""
+	# problem being: Open.Michigan courses do not link explicitly to the Amara link generally, even when the vids are translated -- avail through YT, diff ids
 	def __init__(self,pgpath):
 		sp = bsoup("http://open.umich.edu/{}".format(pgpath))
 		ls = sp.findAll('a')
@@ -38,11 +38,12 @@ class CourseWithVids(AmaraAccount): # maybe this ought not inherit
 
 
 class RelevantVideos(object):
-	"""Aggregates together information from a bunch of AmaraAccount objects"""
+	"""Aggregates together information from a bunch of AmaraAccount objects (assuming interest is in a few, more can be added programmatically)"""
 	def __init__(self,acct_1=None,acct_2=None,acct_3=None): # each acct should be a var holding an AmaraAcct obj
 		self.ids = {} # initialize with empty dict
 		self.vid_patt = re.compile(r"/videos/([a-zA-Z0-9]{12})")
-		self.coincidental_links = ["openmichigan"] # TODO use this; add more as necessary, seems unlikely
+		self.coincidental_links = ["openmichigan"] # TODO use this; add more if necessary, seems unlikely 
+		# -- there is always a link back to "openmichigan" and that is not a vid to be translated
 		self.acctobjs = []
 		if acct_1 is not None:
 			self.acctobjs.append(acct_1)
@@ -54,6 +55,9 @@ class RelevantVideos(object):
 		for ob in self.acctobjs:
 			ob.get_links()
 		self.manage_links()
+
+	#def add_account
+
 
 	def manage_lastpage_links(self):
 		for ab in self.acctobjs:
