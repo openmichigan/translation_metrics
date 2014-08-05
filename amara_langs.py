@@ -15,9 +15,6 @@ for si in separated:
 		if term.startswith("Subtag:"):
 			#print term.split(":")[1].strip().rstrip()
 			#print si[2].split(":")[1].strip().rstrip()
-			if "zhx" in term.split(":")[1].strip().rstrip():
-				print "zhx"
-				print si[2].split(":")[1].strip().rstrip()
 			codelangs[term.split(":")[1].strip().rstrip()] = si[2].split(":")[1].strip().rstrip()
 
 
@@ -125,6 +122,7 @@ Languages:\n
 		now = str(datetime.datetime.now())
 		f = open("amara_info_{}.csv".format(now), "w") # creates csv file dated with current date/time
 		f.write("Language Name\tNumber of Subtitles\n")
+		f.write("Total Subtitles (Including English)\t{}\n".format(self.total_indiv_subtitles))
 		f.write("Total Non-English Subtitles\t{}\n".format(int(self.get_total_subtitles()))) # TODO add the total number of non-English subtitles
 		for l in sorted(self.langsnums.keys(),key=lambda x:self.langsnums[x]):
 			f.write("{}\t{}\n".format(l,self.langsnums[l]))

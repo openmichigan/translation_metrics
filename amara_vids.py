@@ -93,6 +93,7 @@ class RelevantVideos(object):
 	def manage_links(self): # aggregate
 		self.manage_lastpage_links()
 		self.manage_remainder_links()
+		self.write_file()
 
 	def write_file(self):
 		"""Write txt file with video ids if necessary -- or use list in object"""
