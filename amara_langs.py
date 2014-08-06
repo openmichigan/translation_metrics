@@ -37,7 +37,7 @@ class AmaraInfoSet(object):
 		#print self.lang_map
 		self.flag = True # notes that get info has been run on this instance
 		now = datetime.datetime.now()
-		# open 
+		# open csv file and write videoid-language pairs to it
 		ft = open("video_ids_langs_{}.csv".format(now), "w")
 		ft.write("Video ID,Language Translation\n")
 		for i in self.vid_ids:
