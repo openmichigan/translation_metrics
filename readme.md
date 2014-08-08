@@ -32,7 +32,7 @@ All other package dependencies are included with the Python standard library.
 If you wish to get all **Open.Michigan** translations, you can ``` cd ``` to the directory to which you've cloned this repository, and run ``` python amara_langs.py ``` without any arguments. 
 The total aggregate information about Open.Michigan subtitle translations will be printed to the console, and two files will be created:
 
-- ``` amara_info_[date and time].csv ```, which is a tab-delimited file that includes aggregate information about the Open.Michigan video subtitle translations
+- ``` amara_info_[date and time].csv ```, which is a comma-delimited file that includes aggregate information about the Open.Michigan video subtitle translations
 - ``` video_ids_langs_[date and time].csv ```, which is a comma-delimited file that includes all Amara video IDs and the corresponding languages in which there is a subtitle track
 
 _If you provide an argument to the command line_ run of the program, e.g. ``` python amara_langs.py othertestaccountname ```, the program will do the same thing, but for all the videos belonging to the account **othertestaccountname**, and _not_ the Open.Michigan videos.
