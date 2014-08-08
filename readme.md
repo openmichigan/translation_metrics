@@ -8,7 +8,9 @@ Two Python scripts: ``` amara_vids.py ``` and ``` amara_langs.py ``` are include
 
 ##what you need
 
-You will need an Amara.org account.
+You will need an Amara.org account, and Python 2.7 installed on your computer.
+
+(In order to run this script in Python 3, one need only change string syntax.)
 
 To use, you will need to create a file called ``` api_key.py ```, and put in it one line:
 
@@ -18,9 +20,10 @@ Then go to [this page](http://www.amara.org/en/auth/login/?next=/en/profiles/edi
 
 You will need Python installed on your machine, and you will need to install (via PyPi, ``` pip install ``` ) the following dependencies:
 
- - itertools
- - urllib
  - requests
+ - BeautifulSoup4
+
+If you are not installing these packages within a virtual environment, you will need to install them as root, i.e. ``` sudo pip install requests ```, for example.
 
 All other package dependencies are included with the Python standard library.
 
@@ -33,6 +36,8 @@ The total aggregate information about Open.Michigan subtitle translations will b
 - ``` video_ids_langs_[date and time].csv ```, which is a comma-delimited file that includes all Amara video IDs and the corresponding languages in which there is a subtitle track
 
 _If you provide an argument to the command line_ run of the program, e.g. ``` python amara_langs.py othertestaccountname ```, the program will do the same thing, but for all the videos belonging to the account **othertestaccountname**, and _not_ the Open.Michigan videos.
+
+If you wish to inspect an individual video on the Amara website, the URL format is: ```  http://amara.org/en/videos/<video_ID>/ ```. (e.g. ```  http://amara.org/en/videos/mTDSCV3CAxHY/ ```)
 
 ##license
 

@@ -96,7 +96,7 @@ Languages:\n
 		return s
 	
 	def __repr__(self):
-		# TODO: return some form of structured non-TSV data. JSON?
+		# TODO: return some form of structured non-C/TSV data. JSON?
 		pass
 
 	def write_tsv(self):
@@ -106,10 +106,10 @@ Languages:\n
 		now = str(datetime.datetime.now())
 		f = open("amara_info_{}.csv".format(now), "w") # creates csv file dated with current date/time
 		f.write("Language Name\tNumber of Subtitles\n")
-		f.write("Total Subtitles (Including English)\t{}\n".format(self.total_indiv_subtitles))
-		f.write("Total Non-English Subtitles\t{}\n".format(int(self.get_total_subtitles()))) # TODO add the total number of non-English subtitles
+		f.write("Total Subtitles (Including English),{}\n".format(self.total_indiv_subtitles))
+		f.write("Total Non-English Subtitles,{}\n".format(int(self.get_total_subtitles()))) # TODO add the total number of non-English subtitles
 		for l in sorted(self.langs.keys(),key=lambda x:self.langs[x]):
-			f.write("{}\t{}\n".format(l,self.langs[l]))
+			f.write("{},{}\n".format(l,self.langs[l]))
 
 if __name__ == '__main__':
 
