@@ -106,7 +106,7 @@ Languages:\n
 			self.get_info()
 		now = str(datetime.datetime.now())
 		f = open("amara_info_{}.csv".format(now), "w") # creates csv file dated with current date/time
-		f.write("Language Name\tNumber of Subtitles\n")
+		f.write("Language Name,Number of Subtitles\n")
 		f.write("Total Subtitles (Including English),{}\n".format(self.total_indiv_subtitles))
 		f.write("Total Non-English Subtitles,{}\n".format(int(self.total_transls))) # TODO add the total number of non-English subtitles
 		for l in sorted(self.langs.keys(),key=lambda x:self.langs[x]):
