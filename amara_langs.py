@@ -27,7 +27,6 @@ class AmaraInfoSet(object):
 		self.total_indiv_subtitles = 0
 		self.lang_names = []
 		self.langs = {}
-		self.get_non_english_langs()
 		self.lang_map = codelangs # created dict above
 		self.lang_map['swa'] = "Swahili" # because of a multiple version problem, see error correction
 		self.lang_map['zh'] = "Chinese" # same thing
@@ -36,7 +35,7 @@ class AmaraInfoSet(object):
 	def get_info(self):
 		#print self.lang_map
 		self.flag = True # notes that get info has been run on this instance
-		now = datetime.datetime.now()
+		now = str(datetime.datetime.now()).split(":")[0].replace("\/","") + "h"
 		# open csv file and write videoid-language pairs to it
 		ft = open("video_ids_langs_{}.csv".format(now), "w")
 		ft.write("Video ID,Language Translation\n")
@@ -58,11 +57,12 @@ class AmaraInfoSet(object):
 							ft.write("{}\t{}\n".format(i,self.lang_map[lc]))
 						if ob["name"] != "english": # using for non-english languages, primary use case
 							self.lang_names.append(ob["name"]) 
-
+					#self.get_non_english_langs()
 				except Exception, e:
 					print "Exception raised - {}".format(e)
 					print "Looking at video: {}".format(i)
 					continue
+		self.get_non_english_langs()
 
 	def get_total_subtitles(self):
 		"""Gets and returns the number of total non-English subtitles extant in this InfoSet"""
@@ -77,10 +77,11 @@ class AmaraInfoSet(object):
 		self.non_eng_langs = []
 		self.total_transls = 0 # maybe not necessary, TODO consider
 		for k in self.langs:
-			if k != "en":
+			if "nglish" not in k:
 				self.total_transls += self.langs[k]
 				#print self.langs[k]
-				self.non_eng_langs.append(k)
+				if k != "Abhkazian": # TODO: what is going on there
+					self.non_eng_langs.append(k)
 
 	def __str__(self):
 		"""Provides print-to-console representation of InfoSet"""
@@ -96,10 +97,10 @@ Languages:\n
 		return s
 	
 	def __repr__(self):
-		# TODO: return some form of structured non-C/TSV data. JSON?
+		# TODO: return some form of structured non-C/TSV data.
 		pass
 
-	def write_tsv(self):
+	def write_csv(self):
 		#self.get_info()
 		if not self.flag:
 			self.get_info()
@@ -107,7 +108,7 @@ Languages:\n
 		f = open("amara_info_{}.csv".format(now), "w") # creates csv file dated with current date/time
 		f.write("Language Name\tNumber of Subtitles\n")
 		f.write("Total Subtitles (Including English),{}\n".format(self.total_indiv_subtitles))
-		f.write("Total Non-English Subtitles,{}\n".format(int(self.get_total_subtitles()))) # TODO add the total number of non-English subtitles
+		f.write("Total Non-English Subtitles,{}\n".format(int(self.total_transls))) # TODO add the total number of non-English subtitles
 		for l in sorted(self.langs.keys(),key=lambda x:self.langs[x]):
 			f.write("{},{}\n".format(l,self.langs[l]))
 
@@ -129,5 +130,5 @@ if __name__ == '__main__':
 	# print information to console
 	print total_info 
 	# write aggregate file
-	total_info.write_tsv()
+	total_info.write_csv()
 
